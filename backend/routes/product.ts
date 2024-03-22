@@ -30,18 +30,6 @@ router.get("/api/products/:productId", async (req, res) => {
 router.post("/api/products", authMiddleware, (req, res) => {
   const { name, description, category, originalPrice, pictureUrl, endDate } =
     req.body;
-    console.log(req.body);
-  if (
-    name === undefined ||
-    description === undefined ||
-    category === undefined ||
-    originalPrice === undefined ||
-    pictureUrl === undefined ||
-    endDate === undefined
-  ) {
-    res.status(400).send();
-    return;
-  }
   const authenticatedUserId = req.user?.id;
 
   Product.create({
@@ -57,16 +45,17 @@ router.post("/api/products", authMiddleware, (req, res) => {
       res.status(201).send(product);
     })
     .catch((error) => {
-      res.status(500).send(error);
+      return res.status(400).json({
+        error: "Invalid or missing fields",
+        details: getDetails(error as Error),
+      });
     });
 });
 
-router.put("/api/products/:productId", async (req, res) => {
- });
+router.put("/api/products/:productId", async (req, res) => {});
 
 router.delete("/api/products/:productId", async (req, res) => {
   res.status(600).send();
 });
-
 
 export default router;
