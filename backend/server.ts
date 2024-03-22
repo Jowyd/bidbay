@@ -7,10 +7,17 @@ import productRoutes from './routes/product.js'
 import userRoutes from './routes/user.js'
 import bidRoutes from './routes/bid.js'
 import cors from 'cors'
+import { Token } from './types/types'
 
 const app = express()
 app.use(express.json())
 app.use(cors({}))
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: Token
+  }
+}
 
 async function main () {
   await initializeDatabase()
