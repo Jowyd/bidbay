@@ -52,7 +52,26 @@ router.post("/api/products", authMiddleware, (req, res) => {
     });
 });
 
-router.put("/api/products/:productId", async (req, res) => {});
+router.put("/api/products/:productId",authMiddleware, async (req, res) => {
+  const { name, description, category, originalPrice, pictureUrl, endDate } =
+    req.body;
+  const authenticatedUserId = req.user?.id;
+  const product = await Product.findByPk(req.params.productId);
+  if (!product) {
+    res.status(404).send();
+  } else if (product.sellerId !== authenticatedUserId) {
+    res.status(403).send();
+  } else {
+    product.name = name;
+    product.description = description;
+    product.category = category;
+    product.originalPrice = originalPrice;
+    product.pictureUrl = pictureUrl;
+    product.endDate = endDate;
+    product.save();
+    res.status(200).send(product);
+}
+});
 
 router.delete("/api/products/:productId", async (req, res) => {
   res.status(600).send();
