@@ -74,7 +74,13 @@ router.put("/api/products/:productId",authMiddleware, async (req, res) => {
 });
 
 router.delete("/api/products/:productId", async (req, res) => {
-  res.status(600).send();
+  const product = await Product.findByPk(req.params.productId);
+  if (!product) {
+    res.status(404).send();
+  } else {
+    product.destroy();
+    res.status(204).send();
+  }
 });
 
 export default router;
