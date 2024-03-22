@@ -56,10 +56,12 @@ router.put("/api/products/:productId",authMiddleware, async (req, res) => {
   const { name, description, category, originalPrice, pictureUrl, endDate } =
     req.body;
   const authenticatedUserId = req.user?.id;
+  const isAdmin = req.user?.admin;
+
   const product = await Product.findByPk(req.params.productId);
   if (!product) {
     res.status(404).send();
-  } else if (product.sellerId !== authenticatedUserId) {
+  } else if (product.sellerId !== authenticatedUserId && !isAdmin) {
     res.status(403).send();
   } else {
     product.name = name;
@@ -74,6 +76,7 @@ router.put("/api/products/:productId",authMiddleware, async (req, res) => {
 });
 
 router.delete("/api/products/:productId", async (req, res) => {
+  
   const product = await Product.findByPk(req.params.productId);
   if (!product) {
     res.status(404).send();
@@ -84,3 +87,5 @@ router.delete("/api/products/:productId", async (req, res) => {
 });
 
 export default router;
+
+
