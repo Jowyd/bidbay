@@ -7,5 +7,6 @@ export const sequelize = new Sequelize({
     database: 'db',
     dialect: 'sqlite',
     storage: ':memory:',
+    logging: false,
     models: [Bid, Product, User],
 })
