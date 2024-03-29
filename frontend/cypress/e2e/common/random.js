@@ -41,7 +41,7 @@ export function randomDate() {
   const now = new Date();
   const randomOffset = Math.floor(Math.random() * 20) - 10; // random number between -10 and 10
   const randomDate = new Date(
-    now.getTime() + randomOffset * 24 * 60 * 60 * 1000
+    now.getTime() + randomOffset * 24 * 60 * 60 * 1000,
   ); // add random number of days to current date
   return randomDate;
 }
@@ -50,7 +50,7 @@ export function randomPastDate() {
   const now = new Date();
   const randomOffset = -Math.ceil(Math.random() * 10); // random number between -10 and 10
   const randomDate = new Date(
-    now.getTime() + randomOffset * 24 * 60 * 60 * 1000
+    now.getTime() + randomOffset * 24 * 60 * 60 * 1000,
   ); // add random number of days to current date
   return randomDate;
 }
@@ -59,7 +59,7 @@ export function randomFuturDate() {
   const now = new Date();
   const randomOffset = Math.ceil(Math.random() * 10); // random number between -10 and 10
   const randomDate = new Date(
-    now.getTime() + randomOffset * 24 * 60 * 60 * 1000
+    now.getTime() + randomOffset * 24 * 60 * 60 * 1000,
   ); // add random number of days to current date
   return randomDate;
 }

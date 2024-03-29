@@ -26,11 +26,11 @@ describe("Page /products/add", () => {
       cy.get("[data-test-product-picture]").type("{selectAll}{del}");
       cy.get("[data-test-product-picture]").type(product.pictureUrl);
       cy.get("[data-test-product-end-date]").type(
-        prepareDateToType(originalProduct.endDate)
+        prepareDateToType(originalProduct.endDate),
       );
 
       cy.intercept("POST", "http://localhost:3000/api/products").as(
-        "postProduct"
+        "postProduct",
       );
 
       cy.get("[data-test-submit]").click();
@@ -62,7 +62,7 @@ describe("Page /products/add", () => {
       cy.get("[data-test-product-picture]").type("{selectAll}{del}");
       cy.get("[data-test-product-picture]").type(product.pictureUrl);
       cy.get("[data-test-product-end-date]").type(
-        prepareDateToType(originalProduct.endDate)
+        prepareDateToType(originalProduct.endDate),
       );
       cy.intercept("POST", "http://localhost:3000/api/products", {
         delay: 2000,
@@ -93,7 +93,7 @@ describe("Page /products/add", () => {
       cy.get("[data-test-product-picture]").type("{selectAll}{del}");
       cy.get("[data-test-product-picture]").type(product.pictureUrl);
       cy.get("[data-test-product-end-date]").type(
-        prepareDateToType(originalProduct.endDate)
+        prepareDateToType(originalProduct.endDate),
       );
 
       cy.intercept("POST", "http://localhost:3000/api/products", {

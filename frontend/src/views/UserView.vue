@@ -15,6 +15,23 @@ const error = ref(null);
 
 let userId = computed(() => route.params.userId);
 
+import { userService } from "@/services/apiService";
+
+const fetchUser = async () => {
+  loading.value = true;
+  try {
+    const response = await userService.getUser(userId.value);
+    const user = response.body;
+    user.value = user;
+  } catch (e) {
+    error.value = e;
+  } finally {
+    loading.value = false;
+  }
+};
+
+await fetchUser();
+
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString();
 };
@@ -26,12 +43,12 @@ const formatDate = (date: Date) => {
       Utilisateur charly
       <span class="badge rounded-pill bg-primary" data-test-admin>Admin</span>
     </h1>
-    <div class="text-center" data-test-loading>
+    <div class="text-center" data-test-loading v-if="loading">
       <span class="spinner-border"></span>
       <span>Chargement en cours...</span>
     </div>
-    <div class="alert alert-danger mt-3" data-test-error>
-      Une erreur est survenue
+    <div v-if="error" class="alert alert-danger mt-3" role="alert">
+      {{ error }}
     </div>
     <div data-test-view>
       <div class="row">
