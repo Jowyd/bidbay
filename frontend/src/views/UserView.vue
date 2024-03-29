@@ -7,7 +7,6 @@ import { User } from "../models/user"
 
 const { isAuthenticated, userData } = useAuthStore();
 import { userService } from "@/services/apiService";
-import { isUint16Array } from "util/types";
 
 const router = useRouter();
 const route = useRoute();
