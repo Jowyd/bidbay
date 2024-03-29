@@ -123,7 +123,7 @@ const formatDate = (date: Date) => {
                   <RouterLink
                     :to="{
                       name: 'Product',
-                      params: { productId: bid.id },
+                      params: { productId: bid.productId },
                     }"
                     data-test-bid-product
                   >
