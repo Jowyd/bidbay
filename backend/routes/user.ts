@@ -4,52 +4,30 @@ import authMiddleware from '../middlewares/auth.js'
 
 const router = express.Router()
 
-const userInDbMiddleware = async (req, res, next) => {
-  const userId = req.params.userId;
-  const user = await User.findByPk(userId)
-  if (!user) {
-    return res.status(404).send("User not found")
-  }
-  req.user = user
-  next()
-}
-
 router.get("/api/users/me", authMiddleware, async (req, res) => {
   const userId = req.user?.id;
-  console.log("userId", userId);
   const user = await User.findByPk(userId, {
     include: [Product, Bid]
   })
   return res.status(200).send(user);
 })
 
-router.get("/api/users/:userId/products", userInDbMiddleware, async (req, res) => {
+
+router.get('/api/users/:userId', async (req, res) => {
+  if(!req.params.userId) {
+    return res.status(400).send({message: "userId is required"});
+  }
   const userId = req.params.userId;
-  const products = await Product.findAll({
-    where: {
-      sellerId: userId
-    }
-  })
-  return res.status(200).send(products);
-})
 
-router.get("/api/users/:userId/bids", userInDbMiddleware, async (req, res) => {
-  const userId = req.params.userId;
-  const bids = await Bid.findAll({
-    where: {
-      bidderId: userId
-    }
-    ,include: [Product]
-  })
-  return res.status(200).send(bids);
-})
-
-
-router.get('/api/users/:userId', userInDbMiddleware, async (req, res) => {
-  const userId = req.params.userId    
   const user = await User.findByPk(userId, {
-    include: [Product, Bid]
+    include: [
+      { model:Product, isAliased: true, as: 'products' }, 
+      { model:Bid, isAliased: true, as: 'bids', include: [{model:Product, isAliased: true, as: 'product'}] }
+    ]
   })
+  if(!user) {
+    return res.status(404).send({message: "User not found"});
+  }
   return res.status(200).send(user);
 })
 

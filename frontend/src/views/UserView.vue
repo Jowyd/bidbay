@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, Ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "../store/auth";
+import { User } from "../models/user"
 
 const { isAuthenticated, userData } = useAuthStore();
 
 const router = useRouter();
 const route = useRoute();
 
-const user = ref(null);
+const user: Ref<User|null> = ref(null);
 const loading = ref(false);
 const error = ref(null);
 
@@ -21,20 +22,19 @@ const fetchUser = async () => {
   loading.value = true;
   try {
     const response = await userService.getUser(userId.value);
-    const user = response.body;
-    user.value = user;
+    user.value = response;
+    return user;
   } catch (e) {
     error.value = e;
+    router.back();
   } finally {
     loading.value = false;
-  }
+  } 
 };
-
-await fetchUser();
-
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString();
 };
+
 </script>
 
 <template>
@@ -57,13 +57,16 @@ const formatDate = (date: Date) => {
           <div class="row">
             <div
               class="col-md-6 mb-6 py-2"
-              v-for="i in 10"
-              :key="i"
+              v-for="bid in user?.bids"
+              :key="bid.id"
               data-test-product
             >
               <div class="card">
                 <RouterLink
-                  :to="{ name: 'Product', params: { productId: 'TODO' } }"
+                  :to="{
+                    name: 'Product',
+                    params: { productId: bid.productId },
+                  }"
                 >
                   <img
                     src="https://image.noelshack.com/fichiers/2023/12/4/1679526253-65535-51925549650-96f088a093-b-512-512-nofilter.jpg"
@@ -76,20 +79,18 @@ const formatDate = (date: Date) => {
                     <RouterLink
                       :to="{
                         name: 'Product',
-                        params: { productId: 'TODO' },
+                        params: { productId: bid.productId },
                       }"
                       data-test-product-name
                     >
-                      Chapeau en poil de chameau
+                    {{ bid.productName }}
                     </RouterLink>
                   </h5>
                   <p class="card-text" data-test-product-description>
-                    Ce chapeau en poil de chameau est un véritable chef-d'œuvre
-                    artisanal, doux au toucher et résistant pour une durabilité
-                    à long terme.
+                    {{ bid.productDescription }}
                   </p>
                   <p class="card-text" data-test-product-price>
-                    Prix de départ : 23 €
+                    Prix de départ : {{ bid.price }} €
                   </p>
                 </div>
               </div>
@@ -107,20 +108,24 @@ const formatDate = (date: Date) => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="i in 10" :key="i" data-test-bid>
+              <tr
+                v-for="product in user?.products"
+                :key="product.id"
+                data-test-bid
+              >
                 <td>
                   <RouterLink
                     :to="{
                       name: 'Product',
-                      params: { productId: 'TODO' },
+                      params: { productId: product.id },
                     }"
                     data-test-bid-product
                   >
-                    Théière design
+                    {{ product.name }}
                   </RouterLink>
                 </td>
-                <td data-test-bid-price>713 €</td>
-                <td data-test-bid-date>{{ formatDate(new Date()) }}</td>
+                <td data-test-bid-price>{{ product.originalPrice }} €</td>
+                <td data-test-bid-date>{{ formatDate(product.endDate) }}</td>
               </tr>
             </tbody>
           </table>
