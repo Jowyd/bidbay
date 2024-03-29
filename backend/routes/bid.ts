@@ -5,12 +5,33 @@ import { getDetails } from '../validators/index.js'
 
 const router = express.Router()
 
-router.delete('/api/bids/:bidId', async (req, res) => {
-  res.status(600).send()
+router.delete('/api/bids/:bidId', authMiddleware, async (req, res) => {
+  const isAdmin = req.user?.admin
+  if(isAdmin) {
+    const result = await Bid.destroy({ where: { id: req.params.bidId } })
+    if (result === 0) {
+      return res.status(404).send({ error: 'Bid not found', details: getDetails(req.body) })
+    }
+    return res.status(204).send()
+  }else{
+    const result = await Bid.destroy({ where: { id: req.params.bidId, bidderId: req.user?.id } })
+    if (result === 0) {
+      return res.status(403).send({ error: 'You are not allowed to delete this bid', details: getDetails(req.body) })
+    }
+    return res.status(204).send()
+  }
 })
 
-router.post('/api/products/:productId/bids', async (req, res) => {
-  res.status(600).send()
+router.post('/api/products/:productId/bids', authMiddleware, async (req, res) => {
+  const productId = req.params.productId
+  const userId = req.user?.id
+  const { price } = req.body
+  const product = await Product.findByPk(productId)
+  if (!product) {
+    return res.status(404).send({ error: 'Product not found', details: getDetails(req.body) })
+  }
+  const bid = await Bid.create({ price, productId, bidderId: userId })
+  res.status(201).send(bid)
 })
 
 export default router
