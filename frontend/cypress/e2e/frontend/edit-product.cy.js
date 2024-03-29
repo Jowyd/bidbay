@@ -31,12 +31,12 @@ describe("Page /products/:productId/edit", () => {
       cy.get("[data-test-product-picture]").type(newProduct.pictureUrl);
       cy.get("[data-test-product-end-date]").type("{selectAll}{del}");
       cy.get("[data-test-product-end-date]").type(
-        prepareDateToType(newProduct.endDate)
+        prepareDateToType(newProduct.endDate),
       );
 
       cy.intercept(
         "PUT",
-        "http://localhost:3000/api/products/" + product.id
+        "http://localhost:3000/api/products/" + product.id,
       ).as("putProduct");
 
       cy.get("[data-test-submit]").click();
@@ -75,7 +75,7 @@ describe("Page /products/:productId/edit", () => {
       cy.get("[data-test-product-picture]").type(newProduct.pictureUrl);
       cy.get("[data-test-product-end-date]").type("{selectAll}{del}");
       cy.get("[data-test-product-end-date]").type(
-        prepareDateToType(newProduct.endDate)
+        prepareDateToType(newProduct.endDate),
       );
 
       cy.intercept("PUT", "http://localhost:3000/api/products/" + product.id, {
@@ -115,7 +115,7 @@ describe("Page /products/:productId/edit", () => {
       cy.get("[data-test-product-picture]").type(newProduct.pictureUrl);
       cy.get("[data-test-product-end-date]").type("{selectAll}{del}");
       cy.get("[data-test-product-end-date]").type(
-        prepareDateToType(newProduct.endDate)
+        prepareDateToType(newProduct.endDate),
       );
 
       cy.intercept("PUT", "http://localhost:3000/api/products/" + product.id, {

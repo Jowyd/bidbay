@@ -75,7 +75,7 @@ describe("Page /users/:userId", () => {
                 .should("contain.text", new Date().getMonth() + 1)
                 .should("contain.text", new Date().getFullYear());
             });
-        }
+        },
       );
     });
   });

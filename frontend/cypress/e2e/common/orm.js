@@ -88,7 +88,7 @@ export function createBid(productId, currentPrice, token = aliceToken) {
 export function getProducts() {
   return new Promise((resolve) => {
     cy.request("http://localhost:3000/api/products").then((res) =>
-      resolve({ products: res.body })
+      resolve({ products: res.body }),
     );
   });
 }
@@ -96,7 +96,7 @@ export function getProducts() {
 export function getProduct(productId) {
   return new Promise((resolve) => {
     cy.request(`http://localhost:3000/api/products/${productId}`).then((res) =>
-      resolve({ product: res.body })
+      resolve({ product: res.body }),
     );
   });
 }

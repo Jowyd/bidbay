@@ -1,37 +1,59 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, Ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "../store/auth";
+import { User } from "../models/user"
 
 const { isAuthenticated, userData } = useAuthStore();
+import { userService } from "@/services/apiService";
 
 const router = useRouter();
 const route = useRoute();
 
-const user = ref(null);
+const user: Ref<User|null> = ref(null);
 const loading = ref(false);
 const error = ref(null);
 
-let userId = computed(() => route.params.userId);
+let userId = computed(() => route.params.userId as string);
+
+const fetchUser = async () => {
+  loading.value = true;
+  try {
+    const response = await userService.getUser(userId.value);
+    user.value = response;
+    console.log(response)
+    return response;
+  } catch (e) {
+    error.value = e;
+    router.push({ name: "Home" });
+  } finally {
+    loading.value = false;
+  } 
+};
+
+onMounted(() => {
+  fetchUser();
+});
 
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString();
 };
+
 </script>
 
 <template>
   <div>
     <h1 class="text-center" data-test-username>
-      Utilisateur charly
+      Utilisateur {{ user?.username }}
       <span class="badge rounded-pill bg-primary" data-test-admin>Admin</span>
     </h1>
-    <div class="text-center" data-test-loading>
+    <div class="text-center" data-test-loading v-if="loading">
       <span class="spinner-border"></span>
       <span>Chargement en cours...</span>
     </div>
-    <div class="alert alert-danger mt-3" data-test-error>
-      Une erreur est survenue
+    <div v-if="error" class="alert alert-danger mt-3" role="alert">
+      {{ error }}
     </div>
     <div data-test-view>
       <div class="row">
@@ -40,16 +62,19 @@ const formatDate = (date: Date) => {
           <div class="row">
             <div
               class="col-md-6 mb-6 py-2"
-              v-for="i in 10"
-              :key="i"
+              v-for="product in user?.products"
+              :key="product.id"
               data-test-product
             >
               <div class="card">
                 <RouterLink
-                  :to="{ name: 'Product', params: { productId: 'TODO' } }"
+                  :to="{
+                    name: 'Product',
+                    params: { productId: product.id },
+                  }"
                 >
                   <img
-                    src="https://image.noelshack.com/fichiers/2023/12/4/1679526253-65535-51925549650-96f088a093-b-512-512-nofilter.jpg"
+                    :src="product.pictureUrl"
                     class="card-img-top"
                     data-test-product-picture
                   />
@@ -59,20 +84,18 @@ const formatDate = (date: Date) => {
                     <RouterLink
                       :to="{
                         name: 'Product',
-                        params: { productId: 'TODO' },
+                        params: { productId: product.id },
                       }"
                       data-test-product-name
                     >
-                      Chapeau en poil de chameau
+                    {{ product.name }}
                     </RouterLink>
                   </h5>
                   <p class="card-text" data-test-product-description>
-                    Ce chapeau en poil de chameau est un véritable chef-d'œuvre
-                    artisanal, doux au toucher et résistant pour une durabilité
-                    à long terme.
+                    {{ product.description }}
                   </p>
                   <p class="card-text" data-test-product-price>
-                    Prix de départ : 23 €
+                    Prix de départ : {{ product.originalPrice }} €
                   </p>
                 </div>
               </div>
@@ -90,20 +113,24 @@ const formatDate = (date: Date) => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="i in 10" :key="i" data-test-bid>
+              <tr
+                v-for="bid in user?.bids"
+                :key="bid.id"
+                data-test-bid
+              >
                 <td>
                   <RouterLink
                     :to="{
                       name: 'Product',
-                      params: { productId: 'TODO' },
+                      params: { productId: bid.productId },
                     }"
                     data-test-bid-product
                   >
-                    Théière design
+                    {{ bid.product.name }}
                   </RouterLink>
                 </td>
-                <td data-test-bid-price>713 €</td>
-                <td data-test-bid-date>{{ formatDate(new Date()) }}</td>
+                <td data-test-bid-price>{{ bid.price }} €</td>
+                <td data-test-bid-date>{{ formatDate(bid.date) }}</td>
               </tr>
             </tbody>
           </table>
