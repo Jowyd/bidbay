@@ -75,14 +75,26 @@ router.put("/api/products/:productId",authMiddleware, async (req, res) => {
 }
 });
 
-router.delete("/api/products/:productId", async (req, res) => {
-  
-  const product = await Product.findByPk(req.params.productId);
-  if (!product) {
-    res.status(404).send();
-  } else {
-    product.destroy();
-    res.status(204).send();
+router.delete("/api/products/:productId", authMiddleware, async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.productId);
+    const authenticatedUserId = req.user?.id;
+
+    const isAdmin = req.user?.admin;
+
+    if (!product) {
+      res.status(404).send();
+    } else {
+      if (product.sellerId !== authenticatedUserId && !isAdmin) {
+        res.status(403).send();
+      } else {
+        await product.destroy();
+        res.status(200).send(product);
+      }
+    }
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).send();
   }
 });
 
