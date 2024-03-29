@@ -7,8 +7,14 @@ const router = express.Router()
 router.get("/api/users/me", authMiddleware, async (req, res) => {
   const userId = req.user?.id;
   const user = await User.findByPk(userId, {
-    include: [Product, Bid]
+    include: [
+      { model:Product, isAliased: true, as: 'products' }, 
+      { model:Bid, isAliased: true, as: 'bids', include: [{model:Product, isAliased: true, as: 'product'}] }
+    ]
   })
+  if(!user) {
+    return res.status(404).send({message: "User not found"});
+  }
   return res.status(200).send(user);
 })
 

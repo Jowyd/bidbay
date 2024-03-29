@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, Ref, computed } from "vue";
+import { ref, Ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "../store/auth";
 import { User } from "../models/user"
 
 const { isAuthenticated, userData } = useAuthStore();
+import { userService } from "@/services/apiService";
+import { isUint16Array } from "util/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -14,23 +16,27 @@ const user: Ref<User|null> = ref(null);
 const loading = ref(false);
 const error = ref(null);
 
-let userId = computed(() => route.params.userId);
-
-import { userService } from "@/services/apiService";
+let userId = computed(() => route.params.userId as string);
 
 const fetchUser = async () => {
   loading.value = true;
   try {
     const response = await userService.getUser(userId.value);
     user.value = response;
-    return user;
+    console.log(response)
+    return response;
   } catch (e) {
     error.value = e;
-    router.back();
+    router.push({ name: "Home" });
   } finally {
     loading.value = false;
   } 
 };
+
+onMounted(() => {
+  fetchUser();
+});
+
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString();
 };
@@ -40,7 +46,7 @@ const formatDate = (date: Date) => {
 <template>
   <div>
     <h1 class="text-center" data-test-username>
-      Utilisateur charly
+      Utilisateur {{ user?.username }}
       <span class="badge rounded-pill bg-primary" data-test-admin>Admin</span>
     </h1>
     <div class="text-center" data-test-loading v-if="loading">
@@ -57,19 +63,19 @@ const formatDate = (date: Date) => {
           <div class="row">
             <div
               class="col-md-6 mb-6 py-2"
-              v-for="bid in user?.bids"
-              :key="bid.id"
+              v-for="product in user?.products"
+              :key="product.id"
               data-test-product
             >
               <div class="card">
                 <RouterLink
                   :to="{
                     name: 'Product',
-                    params: { productId: bid.productId },
+                    params: { productId: product.id },
                   }"
                 >
                   <img
-                    src="https://image.noelshack.com/fichiers/2023/12/4/1679526253-65535-51925549650-96f088a093-b-512-512-nofilter.jpg"
+                    :src="product.pictureUrl"
                     class="card-img-top"
                     data-test-product-picture
                   />
@@ -79,18 +85,18 @@ const formatDate = (date: Date) => {
                     <RouterLink
                       :to="{
                         name: 'Product',
-                        params: { productId: bid.productId },
+                        params: { productId: product.id },
                       }"
                       data-test-product-name
                     >
-                    {{ bid.productName }}
+                    {{ product.name }}
                     </RouterLink>
                   </h5>
                   <p class="card-text" data-test-product-description>
-                    {{ bid.productDescription }}
+                    {{ product.description }}
                   </p>
                   <p class="card-text" data-test-product-price>
-                    Prix de départ : {{ bid.price }} €
+                    Prix de départ : {{ product.originalPrice }} €
                   </p>
                 </div>
               </div>
@@ -109,23 +115,23 @@ const formatDate = (date: Date) => {
             </thead>
             <tbody>
               <tr
-                v-for="product in user?.products"
-                :key="product.id"
+                v-for="bid in user?.bids"
+                :key="bid.id"
                 data-test-bid
               >
                 <td>
                   <RouterLink
                     :to="{
                       name: 'Product',
-                      params: { productId: product.id },
+                      params: { productId: bid.id },
                     }"
                     data-test-bid-product
                   >
-                    {{ product.name }}
+                    {{ bid.product.name }}
                   </RouterLink>
                 </td>
-                <td data-test-bid-price>{{ product.originalPrice }} €</td>
-                <td data-test-bid-date>{{ formatDate(product.endDate) }}</td>
+                <td data-test-bid-price>{{ bid.price }} €</td>
+                <td data-test-bid-date>{{ formatDate(bid.date) }}</td>
               </tr>
             </tbody>
           </table>
