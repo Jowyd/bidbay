@@ -7,6 +7,7 @@ const loading = ref(false);
 const error = ref(false);
 const products: Ref<Product[]> = ref([]);
 const searchTerm = ref("");
+const sortOption = ref("name");
 
 async function fetchProducts() {
   loading.value = true;
@@ -24,12 +25,22 @@ async function fetchProducts() {
 
 fetchProducts();
 const filteredProducts = computed(() => {
-  if(searchTerm.value) {
+  if (searchTerm.value) {
     return products.value.filter((product) => {
-      return product.name.toLowerCase().includes(searchTerm.value.toLowerCase());
-    }); 
-  }else {
+      return product.name
+        .toLowerCase()
+        .includes(searchTerm.value.toLowerCase());
+    });
+  } else {
     return products.value;
+  }
+});
+
+const sortedProducts = computed(() => {
+  if (sortOption.value === 'name') {
+    return products.value.slice().sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortOption.value === 'price') {
+    return products.value.slice().sort((a, b) => a.originalPrice - b.originalPrice);
   }
 });
 </script>
@@ -66,7 +77,7 @@ const filteredProducts = computed(() => {
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="#"> Nom </a>
+              <a class="dropdown-item" href="#" > Nom </a>
             </li>
             <li>
               <a class="dropdown-item" href="#" data-test-sorter-price>
@@ -125,7 +136,7 @@ const filteredProducts = computed(() => {
               Vendeur :
               <RouterLink
                 data-test-product-seller
-                :to="{ name: 'User', params: { userId: product.sellerId }}"
+                :to="{ name: 'User', params: { userId: product.sellerId } }"
               >
                 {{ product.seller.username }}
               </RouterLink>
