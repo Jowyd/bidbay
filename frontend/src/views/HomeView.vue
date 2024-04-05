@@ -6,6 +6,7 @@ import { Product } from "@/models/product";
 const loading = ref(false);
 const error = ref(false);
 const products: Ref<Product[]> = ref([]);
+const searchTerm = ref("");
 
 async function fetchProducts() {
   loading.value = true;
@@ -22,6 +23,15 @@ async function fetchProducts() {
 }
 
 fetchProducts();
+const filteredProducts = computed(() => {
+  if(searchTerm.value) {
+    return products.value.filter((product) => {
+      return product.name.toLowerCase().includes(searchTerm.value.toLowerCase());
+    }); 
+  }else {
+    return products.value;
+  }
+});
 </script>
 
 <template>
@@ -38,6 +48,7 @@ fetchProducts();
               class="form-control"
               placeholder="Filtrer par nom"
               data-test-filter
+              v-model="searchTerm"
             />
           </div>
         </form>
@@ -84,7 +95,7 @@ fetchProducts();
     <div class="row">
       <div
         class="col-md-4 mb-4"
-        v-for="product in products"
+        v-for="product in filteredProducts"
         data-test-product
         :key="product.id"
       >
