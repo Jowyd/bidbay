@@ -2,6 +2,7 @@ import express from 'express'
 import { Product, Bid, User } from '../orm/index.js'
 import authMiddleware from '../middlewares/auth.js'
 import { getDetails } from '../validators/index.js'
+import { Request } from 'express';
 
 const router = express.Router()
 
@@ -10,7 +11,7 @@ router.get('/api/products', async (req, res, next) => {
   res.status(200).send(products)
 })
 
-router.get('/api/products/:productId', async (req, res) => {
+router.get('/api/products/:productId', async (req: Request<{productId:string}>, res) => {
   const productId = req.params.productId
   const product = await Product.findByPk(productId, {include: [{model: Bid, as: 'bids', include: [{model: User, as: "bidder"}]}, {model: User, as: 'seller'}]})
   if (!product) {
