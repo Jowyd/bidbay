@@ -25,13 +25,15 @@ router.delete('/api/bids/:bidId', authMiddleware, async (req, res) => {
 router.post('/api/products/:productId/bids', authMiddleware, async (req, res) => {
   const productId = req.params.productId
   const userId = req.user?.id
-  const { price } = req.body
+  const { price } = req.body;
   const product = await Product.findByPk(productId)
   if (!product) {
     return res.status(404).send({ error: 'Product not found', details: getDetails(req.body) })
   }
-  const bid = await Bid.create({ price, productId, bidderId: userId })
-  res.status(201).send(bid)
+  const bid = await Bid.create({ price:price, productId:productId, bidderId: userId, date: new Date()})
+  .then((bid) => res.status(201).send(bid))
+  .catch((error) => res.status(500).send({ message: error.message, details: getDetails(error) }))
 })
+
 
 export default router
