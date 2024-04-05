@@ -1,33 +1,61 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, Ref, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "../store/auth";
+import { productService } from "@/services/apiService";
+import { Product } from '@/models/product';
+
 
 const { isAuthenticated, isAdmin, userData, token } = useAuthStore();
 
 const route = useRoute();
 const router = useRouter();
 
-const productId = ref(route.params.productId);
+const productId:Ref<string> = ref<string>(route.params.productId as string);
+const loading: Ref<boolean> = ref<boolean>(false);
+const error: Ref<boolean> = ref<boolean>(false);
+const product: Ref<Product|null> = ref<Product|null>(null);
+
+const fetchProduct = async () => {
+  loading.value = true;
+  try {
+    const response = await productService.getProductById(productId.value);
+    console.log(response);
+    product.value = response;
+  } catch (err) {
+    console.error(err);
+    error.value = true;
+    router.push({ name: "Home" });
+  } finally {
+    loading.value = false;
+    if(product.value===null){
+      router.push({ name: "Home" });
+    }
+  }
+};
+
+onMounted(() => {
+  fetchProduct();
+});
 
 /**
  * @param {number|string|Date|VarDate} date
  */
-function formatDate(date) {
+function formatDate(date:Date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
-  return new Date(date).toLocaleDateString("fr-FR", options);
+  return new Date(date).toLocaleDateString("fr-FR", options as Intl.DateTimeFormatOptions);
 }
 </script>
 
 <template>
   <div class="row">
-    <div class="text-center mt-4" data-test-loading>
+    <div class="text-center mt-4" data-test-loading v-if="loading">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Chargement...</span>
       </div>
     </div>
 
-    <div class="alert alert-danger mt-4" role="alert" data-test-error>
+    <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error">
       Une erreur est survenue lors du chargement des produits.
     </div>
     <div class="row" data-test-product>
@@ -45,7 +73,7 @@ function formatDate(date) {
           </div>
           <div class="card-body">
             <h6 class="card-subtitle mb-2 text-muted" data-test-countdown>
-              Temps restant : {{ countdown }}
+              Temps restant : {{ "15" }}
             </h6>
           </div>
         </div>
@@ -56,12 +84,12 @@ function formatDate(date) {
         <div class="row">
           <div class="col-lg-6">
             <h1 class="mb-3" data-test-product-name>
-              Appareil photo argentique
+              {{ product?.name }}
             </h1>
           </div>
           <div class="col-lg-6 text-end">
             <RouterLink
-              :to="{ name: 'ProductEdition', params: { productId: 'TODO' } }"
+              :to="{ name: 'ProductEdition', params: { productId: productId } }"
               class="btn btn-primary"
               data-test-edit-product
             >
@@ -76,8 +104,9 @@ function formatDate(date) {
 
         <h2 class="mb-3">Description</h2>
         <p data-test-product-description>
-          Appareil photo argentique classique, parfait pour les amateurs de
-          photographie
+          {{
+            product?.description
+          }}
         </p>
 
         <h2 class="mb-3">Informations sur l'enchère</h2>
@@ -87,16 +116,16 @@ function formatDate(date) {
           <li>
             Vendeur :
             <router-link
-              :to="{ name: 'User', params: { userId: 'TODO' } }"
+              :to="{ name: 'User', params: { userId: 'DJHI' } }"
               data-test-product-seller
             >
-              alice
+              {{ product?.seller.username }}
             </router-link>
           </li>
         </ul>
 
         <h2 class="mb-3">Offres sur le produit</h2>
-        <table class="table table-striped" data-test-bids>
+        <table class="table table-striped" data-test-bids v-if="product?.bids.length!=0">
           <thead>
             <tr>
               <th scope="col">Enchérisseur</th>
@@ -106,17 +135,17 @@ function formatDate(date) {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="i in 10" :key="i" data-test-bid>
+            <tr v-for="bid in product?.bids" :key="bid.id" data-test-bid>
               <td>
                 <router-link
                   :to="{ name: 'User', params: { userId: 'TODO' } }"
                   data-test-bid-bidder
                 >
-                  charly
+                  {{ bid.bidder.username }}
                 </router-link>
               </td>
-              <td data-test-bid-price>43 €</td>
-              <td data-test-bid-date>22 mars 2026</td>
+              <td data-test-bid-price>{{ bid.price }} €</td>
+              <td data-test-bid-date>{{ formatDate(bid.date) }}</td>
               <td>
                 <button class="btn btn-danger btn-sm" data-test-delete-bid>
                   Supprimer
@@ -125,7 +154,7 @@ function formatDate(date) {
             </tr>
           </tbody>
         </table>
-        <p data-test-no-bids>Aucune offre pour le moment</p>
+        <p data-test-no-bids v-else>Aucune offre pour le moment</p>
 
         <form data-test-bid-form>
           <div class="form-group">

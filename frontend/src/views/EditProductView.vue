@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from "../store/auth";
 import { useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
+import { Ref, ref, onMounted, computed } from 'vue';
+import { productService } from "@/services/apiService";
+import { Product } from "@/models/product";
 
 const { isAuthenticated, token } = useAuthStore();
 const router = useRouter();
@@ -10,8 +12,57 @@ const route = useRoute();
 if (!isAuthenticated.value) {
   router.push({ name: "Login" });
 }
+const error: Ref<boolean> = ref<boolean>(false);
+const loading: Ref<boolean> = ref<boolean>(false);
+const productId:Ref<string> = ref<string>(route.params.productId as string);
+const product: Ref<Product|null> = ref<Product|null>(null);
+const formattedEndDate = ref<string | undefined>(undefined);
+const modelProduct = defineModel<Product>();
 
-const productId = ref(route.params.productId);
+const fetchProduct = async () => {
+  loading.value = true;
+  try {
+    const response = await productService.getProductById(productId.value);
+    console.log(response);
+    product.value = response;
+    formattedEndDate.value = new Date(response.endDate).toISOString().split('T')[0];
+    modelProduct.value = response
+  } catch (err) {
+    console.error(err);
+    error.value = true;
+    router.push({ name: "Home" });
+  }finally{
+    loading.value = false;
+    if(product.value===null){
+      router.push({ name: "Home" });
+    }
+  }
+};
+
+fetchProduct();
+
+const updateProduct = async (event: Event) => {
+  // event.preventDefault();
+  // console.log("updateProduct");
+  // console.log(product)
+  // const form = event.target as HTMLFormElement;
+  // const formData = new FormData(form);
+  // const data = Object.fromEntries(formData.entries());
+  // data.originalPrice = parseFloat(data.originalPrice);
+  // data.endDate = new Date(data.endDate).toISOString();
+  // data.id = productId.value;
+  // console.log(data);
+  // try {
+  //   loading.value = true;
+  //   // await productService.updateProduct(data);
+  //   router.push({ name: "Product", params: { productId: productId.value } });
+  // } catch (err) {
+  //   console.error(err);
+  //   error.value = true;
+  // } finally {
+  //   loading.value = false;
+  // }
+};
 </script>
 
 <template>
@@ -20,7 +71,7 @@ const productId = ref(route.params.productId);
   <div class="row justify-content-center">
     <div class="col-md-6">
       <form>
-        <div class="alert alert-danger mt-4" role="alert" data-test-error>
+        <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error">
           Une erreur est survenue
         </div>
 
@@ -32,6 +83,7 @@ const productId = ref(route.params.productId);
             id="product-name"
             required
             data-test-product-name
+            :value="product?.name"
           />
         </div>
 
@@ -46,6 +98,7 @@ const productId = ref(route.params.productId);
             rows="3"
             required
             data-test-product-description
+            :value="product?.description"
           ></textarea>
         </div>
 
@@ -57,6 +110,7 @@ const productId = ref(route.params.productId);
             id="product-category"
             required
             data-test-product-category
+            :value="product?.category"
           />
         </div>
 
@@ -74,6 +128,7 @@ const productId = ref(route.params.productId);
               min="0"
               required
               data-test-product-price
+              :value="product?.originalPrice"
             />
             <span class="input-group-text">€</span>
           </div>
@@ -90,6 +145,7 @@ const productId = ref(route.params.productId);
             name="pictureUrl"
             required
             data-test-product-picture
+            :value="product?.pictureUrl"
           />
         </div>
 
@@ -104,6 +160,7 @@ const productId = ref(route.params.productId);
             name="endDate"
             required
             data-test-product-end-date
+            :value="formattedEndDate"
           />
         </div>
 
@@ -111,15 +168,16 @@ const productId = ref(route.params.productId);
           <button
             type="submit"
             class="btn btn-primary"
-            disabled
+            v-bind:disabled="loading"
             data-test-submit
+            @click="updateProduct"
           >
             Modifier le produit
             <span
               class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
-              data-test-spinner
+              data-test-spinner v-if="loading"
             ></span>
           </button>
         </div>

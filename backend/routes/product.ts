@@ -29,7 +29,6 @@ router.get(
     if (!product) {
       return res.status(404).send({ error: "Product not found" });
     }
-    console.log(product);
     res.status(200).send(product);
   }
 );
