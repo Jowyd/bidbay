@@ -28,7 +28,11 @@ export const userService = {
 export const productService = {
   async getProducts(): Promise<Product[]> {
     try {
-      const response = await fetch(`${URL}/products`);
+      const response = await fetch(`${URL}/products`, {
+        headers: {
+          "Authorization": "Bearer " + useAuthStore().token.value,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -40,9 +44,13 @@ export const productService = {
     }
   },
 
-  async getProduct(id: string): Promise<Product> {
+  async getProductById(id: string): Promise<Product> {
     try {
-      const response = await fetch(`${URL}/products/${id}`);
+      const response = await fetch(`${URL}/products/${id}`, {
+        headers: {
+          "Authorization": "Bearer " + useAuthStore().token.value,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch product");
       }
@@ -60,6 +68,7 @@ export const productService = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": "Bearer " + useAuthStore().token.value,
         },
         body: JSON.stringify(product),
       });
@@ -80,6 +89,7 @@ export const productService = {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": "Bearer " + useAuthStore().token.value,
         },
         body: JSON.stringify(product),
       });
@@ -98,6 +108,9 @@ export const productService = {
     try {
       const response = await fetch(`${URL}/products/${id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": "Bearer " + useAuthStore().token.value,
+        },
       });
       if (!response.ok) {
         throw new Error("Failed to delete product");

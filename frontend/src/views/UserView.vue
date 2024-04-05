@@ -13,7 +13,7 @@ const route = useRoute();
 
 const user: Ref<User|null> = ref(null);
 const loading = ref(false);
-const error = ref(null);
+const error: Ref<boolean> = ref(false);
 
 let userId = computed(() => route.params.userId as string);
 
@@ -25,7 +25,7 @@ const fetchUser = async () => {
     console.log(response)
     return response;
   } catch (e) {
-    error.value = e;
+    error.value = true;
     router.push({ name: "Home" });
   } finally {
     loading.value = false;
