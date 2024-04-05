@@ -30,6 +30,9 @@ router.post('/api/products/:productId/bids', authMiddleware, async (req, res) =>
   if (!product) {
     return res.status(404).send({ error: 'Product not found', details: getDetails(req.body) })
   }
+  if(!price) {
+    return res.status(400).send({ error: 'Invalid or missing fields', details: getDetails(req.body) })
+  }
   const bid = await Bid.create({ price:price, productId:productId, bidderId: userId, date: new Date()})
   .then((bid) => res.status(201).send(bid))
   .catch((error) => res.status(500).send({ message: error.message, details: getDetails(error) }))
