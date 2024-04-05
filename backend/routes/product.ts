@@ -63,18 +63,25 @@ router.put('/api/products/:productId', authMiddleware, async (req, res) => {
 })
 
 router.delete('/api/products/:productId', authMiddleware, async (req, res) => {
-  const productId = req.params.productId;
-  const userId = req.user?.id;
-  const product = await Product.findOne({where: {id: productId, sellerId: userId}, include: [{model: User, as: 'seller'}, {model: Bid, as: 'bids'}]})
-  if (!product) {
-    return res.status(404).send({ error: 'Product not found', details: getDetails(req.body) })
+  try{
+    const productId = req.params.productId;
+    const userId = req.user?.id;
+    const product = await Product.findOne({where: {id: productId}, include: [{model: User, as: 'seller'}, {model: Bid, as: 'bids'}]})
+    if (!product) {
+      return res.status(404).send({ error: 'Product not found', details: getDetails(req.body) })
+    }
+    const canDelete = req.user?.admin || req.user?.id === product.sellerId;
+    if(!canDelete) {
+      return res.status(403).send({error: "You are not allowed to delete this product"})
+    }
+    for (const bid of product.bids) {
+      await bid.destroy();
+    }
+    await product.destroy();
+    return res.status(204).send()
+  }catch(error) {
+    // console.log(error)
   }
-  const canDelete = req.user?.admin || req.user?.id === userId;
-  if(!canDelete) {
-    return res.status(403).send({error: "You are not allowed to delete this product"})
-  }
-  product.destroy()
-  return res.status(204).send()
 })
 
 export default router
