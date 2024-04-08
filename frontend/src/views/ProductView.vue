@@ -4,6 +4,7 @@ import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "../store/auth";
 import { productService } from "@/services/apiService";
 import { Product } from '@/models/product';
+import { Bid } from '@/models/bid';
 
 
 const { isAuthenticated, isAdmin, userData, token } = useAuthStore();
@@ -20,7 +21,6 @@ const fetchProduct = async () => {
   loading.value = true;
   try {
     const response = await productService.getProductById(productId.value);
-    console.log(response);
     product.value = response;
   } catch (err) {
     console.error(err);
@@ -45,6 +45,42 @@ function formatDate(date:Date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(date).toLocaleDateString("fr-FR", options as Intl.DateTimeFormatOptions);
 }
+
+const countdown = ref(0);
+
+
+const updateCountdown = () => {
+  if (product.value) {
+    const endDate = new Date(product.value.endDate).getTime();
+    const now = new Date().getTime();
+    const distance = endDate - now;
+    countdown.value = Math.max(0, distance);
+  } else {
+    countdown.value = 0;
+  }
+};
+setInterval(() => {
+  updateCountdown();
+}, 1000);
+
+updateCountdown();
+
+const formattedCountdown = computed(() => {
+  const hours = Math.floor((countdown.value % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((countdown.value % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((countdown.value % (1000 * 60)) / 1000);
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+});
+
+function isYou(){
+  return userData.value?.id === product.value?.sellerId;
+}
+
+function canDeleteBid(bid:Bid){
+  return bid.bidderId === userData.value?.id || isAdmin.value;
+}
+
 </script>
 
 <template>
@@ -62,7 +98,7 @@ function formatDate(date:Date) {
       <!-- Colonne de gauche : image et compte à rebours -->
       <div class="col-lg-4">
         <img
-          src="https://picsum.photos/id/250/512/512"
+          :src="product?.pictureUrl"
           alt=""
           class="img-fluid rounded mb-3"
           data-test-product-picture
@@ -73,7 +109,7 @@ function formatDate(date:Date) {
           </div>
           <div class="card-body">
             <h6 class="card-subtitle mb-2 text-muted" data-test-countdown>
-              Temps restant : {{ "15" }}
+              Temps restant : {{ formattedCountdown }}
             </h6>
           </div>
         </div>
@@ -116,10 +152,11 @@ function formatDate(date:Date) {
           <li>
             Vendeur :
             <router-link
-              :to="{ name: 'User', params: { userId: 'DJHI' } }"
+              v-if="product?.sellerId"
+              :to="{ name: 'User', params: { userId: (isYou() ? 'me' :product?.sellerId) } }"
               data-test-product-seller
             >
-              {{ product?.seller.username }}
+              {{ isYou() ? "Vous": product?.seller.username }}
             </router-link>
           </li>
         </ul>
@@ -138,7 +175,7 @@ function formatDate(date:Date) {
             <tr v-for="bid in product?.bids" :key="bid.id" data-test-bid>
               <td>
                 <router-link
-                  :to="{ name: 'User', params: { userId: 'TODO' } }"
+                  :to="{ name: 'User', params: { userId: bid.bidderId } }"
                   data-test-bid-bidder
                 >
                   {{ bid.bidder.username }}
@@ -147,7 +184,7 @@ function formatDate(date:Date) {
               <td data-test-bid-price>{{ bid.price }} €</td>
               <td data-test-bid-date>{{ formatDate(bid.date) }}</td>
               <td>
-                <button class="btn btn-danger btn-sm" data-test-delete-bid>
+                <button class="btn btn-danger btn-sm" data-test-delete-bid v-if="canDeleteBid(bid) || isYou()">
                   Supprimer
                 </button>
               </td>

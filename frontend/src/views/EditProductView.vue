@@ -72,8 +72,8 @@ const updateProduct = async (event: Event) => {
       pictureUrl: form.pictureUrl,
       endDate: form.endDate,
     };
-    await productService.updateProduct(newProduct);
-    router.push({ name: "Product", params: { productId: productId.value } });
+    // await productService.updateProduct(newProduct);
+    // router.push({ name: "Home" });
   } catch (err) {
     console.error(err);
     error.value = true;
@@ -81,6 +81,11 @@ const updateProduct = async (event: Event) => {
     loading.value = false;
   }
 };
+
+function formateDate(date: Date) {
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(date).toLocaleDateString("fr-FR", options as Intl.DateTimeFormatOptions);
+}
 </script>
 
 <template>
@@ -116,7 +121,7 @@ const updateProduct = async (event: Event) => {
             rows="3"
             required
             data-test-product-description
-            :value="product?.description"
+            v-model="modelProduct.description"
           ></textarea>
         </div>
 
@@ -128,7 +133,7 @@ const updateProduct = async (event: Event) => {
             id="product-category"
             required
             data-test-product-category
-            :value="product?.category"
+            v-model="modelProduct.category"
           />
         </div>
 
@@ -146,7 +151,7 @@ const updateProduct = async (event: Event) => {
               min="0"
               required
               data-test-product-price
-              :value="product?.originalPrice"
+              v-model="modelProduct.originalPrice"
             />
             <span class="input-group-text">€</span>
           </div>
@@ -163,7 +168,7 @@ const updateProduct = async (event: Event) => {
             name="pictureUrl"
             required
             data-test-product-picture
-            :value="product?.pictureUrl"
+            v-model="modelProduct.pictureUrl"
           />
         </div>
 
@@ -178,8 +183,11 @@ const updateProduct = async (event: Event) => {
             name="endDate"
             required
             data-test-product-end-date
-            :value="formattedEndDate"
+            v-model="modelProduct.endDate"
           />
+        </div>
+        <div @click="updateProduct">
+          test
         </div>
 
         <div class="d-grid gap-2">
