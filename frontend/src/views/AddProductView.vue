@@ -7,7 +7,6 @@ import { Product } from "../models/product";
 
 const { isAuthenticated, token } = useAuthStore();
 const router = useRouter();
-
 let loading = ref(false);
 let errorMessage = ref("");
 let product: Product = {
@@ -28,7 +27,7 @@ async function addProduct() {
   loading.value = true;
 
   try {
-    const createdProduct = await productService.createProduct(product); 
+    const createdProduct = await productService.createProduct(product);
     router.push({ name: "Product", params: { productId: createdProduct.id } });
   } catch (error) {
     errorMessage.value = error.message;
