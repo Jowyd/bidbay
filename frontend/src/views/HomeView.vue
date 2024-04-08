@@ -36,13 +36,19 @@ const filteredProducts = computed(() => {
   }
 });
 
-const sortedProducts = computed(() => {
-  if (sortOption.value === 'name') {
-    return products.value.slice().sort((a, b) => a.name.localeCompare(b.name));
-  } else if (sortOption.value === 'price') {
-    return products.value.slice().sort((a, b) => a.originalPrice - b.originalPrice);
+function sortProducts(type: string) {
+  if (type === "price") {
+    products.value = products.value?.sort(
+      (a, b) => a.originalPrice - b.originalPrice
+    );
+    sortOption.value = "prix";
+  } else {
+    products.value = products.value?.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    sortOption.value = "nom";
   }
-});
+}
 </script>
 
 <template>
@@ -76,10 +82,10 @@ const sortedProducts = computed(() => {
             Trier par nom
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" href="#" > Nom </a>
+            <li v-on:click="sortProducts('name')">
+              <a class="dropdown-item" href="#"> Nom </a>
             </li>
-            <li>
+            <li v-on:click="sortProducts('price')">
               <a class="dropdown-item" href="#" data-test-sorter-price>
                 Prix
               </a>
