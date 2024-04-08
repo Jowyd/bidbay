@@ -23,14 +23,9 @@ const fetchProduct = async () => {
     const response = await productService.getProductById(productId.value);
     product.value = response;
   } catch (err) {
-    console.error(err);
     error.value = true;
-    router.push({ name: "Home" });
   } finally {
     loading.value = false;
-    if(product.value===null){
-      router.push({ name: "Home" });
-    }
   }
 };
 
