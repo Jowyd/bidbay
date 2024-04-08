@@ -240,7 +240,7 @@ const submitBid = async () => {
           <button
             type="submit"
             class="btn btn-primary"
-            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0)"
+            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0) || product?.sellerId === userData?.id"
             data-test-submit-bid
             @click="submitBid()"
           >
