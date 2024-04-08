@@ -1,0 +1,294 @@
+{
+  "stats": {
+    "suites": 2,
+    "tests": 9,
+    "passes": 5,
+    "pending": 0,
+    "failures": 4,
+    "start": "2024-04-08T09:40:44.180Z",
+    "end": "2024-04-08T09:41:06.154Z",
+    "duration": 21974,
+    "testsRegistered": 9,
+    "passPercent": 55.55555555555556,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "b109d0a6-a6a5-449e-bd8a-8fd34da69fbe",
+      "title": "",
+      "fullFile": "cypress\\e2e\\frontend\\user.cy.js",
+      "file": "cypress\\e2e\\frontend\\user.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+          "title": "Page /users/:userId",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "display products",
+              "fullTitle": "Page /users/:userId display products",
+              "timedOut": null,
+              "duration": 163,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Test le scénario de récupération et d'affichage des produits\n(0, _orm.createProduct)().then(({\n  product\n}) => {\n  cy.visit(`http://localhost:5173/users/${_tokens.aliceId}`);\n  cy.get(\"[data-test-product]\").should(\"have.length\", 8);\n  cy.get(\"[data-test-product]\").last().find(\"[data-test-product-name]\").should(\"have.text\", product.name).invoke(\"attr\", \"href\").should(\"contain\", product.id);\n  cy.get(\"[data-test-product]\").last().find(\"[data-test-product-description]\").should(\"have.text\", product.description);\n  cy.get(\"[data-test-product]\").last().find(\"[data-test-product-price]\").should(\"contain.text\", product.originalPrice + \" €\");\n  cy.get(\"[data-test-product]\").last().find(\"[data-test-product-picture]\").invoke(\"attr\", \"src\").should(\"eq\", product.pictureUrl);\n});",
+              "err": {},
+              "uuid": "9f203ba8-4ca1-4cf3-981c-76c464e34e1b",
+              "parentUUID": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "display bids",
+              "fullTitle": "Page /users/:userId display bids",
+              "timedOut": null,
+              "duration": 131,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Test le scénario de récupération et d'affichage des offres\n(0, _orm.createProduct)(\"futur\", _tokens.bobToken).then(({\n  product\n}) => {\n  (0, _orm.createBid)(product.id, product.originalPrice, _tokens.aliceToken).then(({\n    bid\n  }) => {\n    cy.visit(`http://localhost:5173/users/${_tokens.aliceId}`);\n    cy.get(\"[data-test-bid]\").should(\"exist\");\n    cy.get(`[data-test-bid-product][href$=\"${product.id}\"]`).should(\"exist\").first().closest(\"[data-test-bid]\").then(el => {\n      cy.wrap(el).find(\"[data-test-bid-product]\").should(\"have.text\", product.name);\n      cy.wrap(el).find(\"[data-test-bid-price]\").should(\"have.text\", bid.price + \" €\");\n      cy.wrap(el).find(\"[data-test-bid-date]\").should(\"contain.text\", new Date().getDate()).should(\"contain.text\", new Date().getMonth() + 1).should(\"contain.text\", new Date().getFullYear());\n    });\n  });\n});",
+              "err": {},
+              "uuid": "01839ec3-b3f4-4231-8b84-08f4c58348c3",
+              "parentUUID": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "no admin badge",
+              "fullTitle": "Page /users/:userId no admin badge",
+              "timedOut": null,
+              "duration": 5371,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie qu'un utilisateur a un badge admin si et seulement si il est admin\ncy.visit(`http://localhost:5173/users/${_tokens.aliceId}`);\ncy.get(\"[data-test-admin]\").should(\"not.exist\");\ncy.visit(`http://localhost:5173/users/${_tokens.adminId}`);\ncy.get(\"[data-test-admin]\").should(\"exist\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-admin]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-admin]`, but never found it.\n    at Context.eval (webpack://frontend/./cypress/e2e/frontend/user.cy.js:92:32)\n    at runnable.fn (http://localhost:5173/__cypress/runner/cypress_runner.js:138654:19)\n    at callFn (http://localhost:5173/__cypress/runner/cypress_runner.js:157265:21)\n    at Runnable.run (http://localhost:5173/__cypress/runner/cypress_runner.js:157252:7)\n    at <unknown> (http://localhost:5173/__cypress/runner/cypress_runner.js:163176:30)\n    at PassThroughHandlerContext.finallyHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:4072:23)\n    at PassThroughHandlerContext.tryCatcher (http://localhost:5173/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:1519:31)",
+                "diff": null
+              },
+              "uuid": "aa0fdcb6-6b03-403e-aeeb-cd720919dbb5",
+              "parentUUID": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "loading",
+              "fullTitle": "Page /users/:userId loading",
+              "timedOut": null,
+              "duration": 4391,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie la présence d'un spinner au chargement\ncy.intercept(`http://localhost:3000/api/users/${_tokens.aliceId}`, {\n  delay: 10000\n});\ncy.visit(`http://localhost:5173/users/${_tokens.aliceId}`);\ncy.get(\"[data-test-loading]\").should(\"exist\");\ncy.get(\"[data-test-view]\").should(\"not.exist\");\ncy.get(\"[data-test-error]\").should(\"not.exist\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-loading]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-loading]`, but never found it.\n    at Context.eval (webpack://frontend/./cypress/e2e/frontend/user.cy.js:104:34)\n    at runnable.fn (http://localhost:5173/__cypress/runner/cypress_runner.js:138654:19)\n    at callFn (http://localhost:5173/__cypress/runner/cypress_runner.js:157265:21)\n    at Runnable.run (http://localhost:5173/__cypress/runner/cypress_runner.js:157252:7)\n    at <unknown> (http://localhost:5173/__cypress/runner/cypress_runner.js:163176:30)\n    at PassThroughHandlerContext.finallyHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:4072:23)\n    at PassThroughHandlerContext.tryCatcher (http://localhost:5173/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:1519:31)",
+                "diff": null
+              },
+              "uuid": "7aa77881-a9a6-4a52-845f-c8c876ad00c5",
+              "parentUUID": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "error",
+              "fullTitle": "Page /users/:userId error",
+              "timedOut": null,
+              "duration": 4378,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie la présence d'une erreur en cas d'échec de chargement\ncy.intercept(`http://localhost:3000/api/users/${_tokens.aliceId}`, {\n  statusCode: 500\n});\ncy.visit(`http://localhost:5173/users/${_tokens.aliceId}`);\ncy.get(\"[data-test-error]\").should(\"exist\");\ncy.get(\"[data-test-loading]\").should(\"not.exist\");\ncy.get(\"[data-test-view]\").should(\"not.exist\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-error]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-error]`, but never found it.\n    at Context.eval (webpack://frontend/./cypress/e2e/frontend/user.cy.js:118:32)\n    at runnable.fn (http://localhost:5173/__cypress/runner/cypress_runner.js:138654:19)\n    at callFn (http://localhost:5173/__cypress/runner/cypress_runner.js:157265:21)\n    at Runnable.run (http://localhost:5173/__cypress/runner/cypress_runner.js:157252:7)\n    at <unknown> (http://localhost:5173/__cypress/runner/cypress_runner.js:163176:30)\n    at PassThroughHandlerContext.finallyHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:4072:23)\n    at PassThroughHandlerContext.tryCatcher (http://localhost:5173/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:1519:31)",
+                "diff": null
+              },
+              "uuid": "98e71126-4ed2-4306-bb05-260d578a93ee",
+              "parentUUID": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "ready",
+              "fullTitle": "Page /users/:userId ready",
+              "timedOut": null,
+              "duration": 4440,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie la présence du contenu quand tout s'est bien chargé\ncy.visit(`http://localhost:5173/users/${_tokens.aliceId}`);\ncy.get(\"[data-test-error]\").should(\"not.exist\");\ncy.get(\"[data-test-loading]\").should(\"not.exist\");\ncy.get(\"[data-test-view]\").should(\"exist\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-view]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-test-view]`, but never found it.\n    at Context.eval (webpack://frontend/./cypress/e2e/frontend/user.cy.js:130:31)\n    at runnable.fn (http://localhost:5173/__cypress/runner/cypress_runner.js:138654:19)\n    at callFn (http://localhost:5173/__cypress/runner/cypress_runner.js:157265:21)\n    at Runnable.run (http://localhost:5173/__cypress/runner/cypress_runner.js:157252:7)\n    at <unknown> (http://localhost:5173/__cypress/runner/cypress_runner.js:163176:30)\n    at PassThroughHandlerContext.finallyHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:4072:23)\n    at PassThroughHandlerContext.tryCatcher (http://localhost:5173/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:5173/__cypress/runner/cypress_runner.js:1519:31)",
+                "diff": null
+              },
+              "uuid": "4f32c841-345f-4359-98a7-7c83e5ad0d65",
+              "parentUUID": "d3f70b79-e143-4fda-96d3-073ac80f34c3",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "9f203ba8-4ca1-4cf3-981c-76c464e34e1b",
+            "01839ec3-b3f4-4231-8b84-08f4c58348c3"
+          ],
+          "failures": [
+            "aa0fdcb6-6b03-403e-aeeb-cd720919dbb5",
+            "7aa77881-a9a6-4a52-845f-c8c876ad00c5",
+            "98e71126-4ed2-4306-bb05-260d578a93ee",
+            "4f32c841-345f-4359-98a7-7c83e5ad0d65"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 18874,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        },
+        {
+          "uuid": "04836f94-fa38-46e0-8fd6-74d2a7a479d0",
+          "title": "Page /users/me",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "me as alice",
+              "fullTitle": "Page /users/me me as alice",
+              "timedOut": null,
+              "duration": 306,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie que le contenu de la page est bien celui de l'utilisateur courant\ncy.visit(`http://localhost:5173/users/me`, {\n  onBeforeLoad: function (window) {\n    window.localStorage.setItem(\"token\", _tokens.aliceToken);\n  }\n});\ncy.get(\"[data-test-username]\").should(\"contain.text\", \"alice\");\ncy.get(\"[data-test-product]\").should(\"have.length\", 7);",
+              "err": {},
+              "uuid": "fef2e7af-82b0-4be8-8b1f-91ba52763d2b",
+              "parentUUID": "04836f94-fa38-46e0-8fd6-74d2a7a479d0",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "me as bob",
+              "fullTitle": "Page /users/me me as bob",
+              "timedOut": null,
+              "duration": 338,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie que le contenu de la page est bien celui de l'utilisateur courant\ncy.visit(`http://localhost:5173/users/me`, {\n  onBeforeLoad: function (window) {\n    window.localStorage.setItem(\"token\", _tokens.bobToken);\n  }\n});\ncy.get(\"[data-test-username]\").should(\"contain.text\", \"bob\");\ncy.get(\"[data-test-product]\").should(\"have.length\", 3);",
+              "err": {},
+              "uuid": "b76d3a1d-39e4-4afa-bb28-014e3bf7d491",
+              "parentUUID": "04836f94-fa38-46e0-8fd6-74d2a7a479d0",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "me as admin",
+              "fullTitle": "Page /users/me me as admin",
+              "timedOut": null,
+              "duration": 277,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie que le contenu de la page est bien celui de l'utilisateur courant\ncy.visit(`http://localhost:5173/users/me`, {\n  onBeforeLoad: function (window) {\n    window.localStorage.setItem(\"token\", _tokens.adminToken);\n  }\n});\ncy.get(\"[data-test-username]\").should(\"contain.text\", \"admin\");",
+              "err": {},
+              "uuid": "d7fb5ae9-ed03-41c1-b657-7b484354a42e",
+              "parentUUID": "04836f94-fa38-46e0-8fd6-74d2a7a479d0",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "fef2e7af-82b0-4be8-8b1f-91ba52763d2b",
+            "b76d3a1d-39e4-4afa-bb28-014e3bf7d491",
+            "d7fb5ae9-ed03-41c1-b657-7b484354a42e"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 921,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/results",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

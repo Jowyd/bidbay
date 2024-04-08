@@ -54,6 +54,9 @@ export const productService = {
       if (!response.ok) {
         throw new Error("Failed to fetch product");
       }
+      if(response.status!=200){
+        throw new Error("Failed to fetch product");
+      }
       const product: Product = await response.json();
       return product;
     } catch (error) {
