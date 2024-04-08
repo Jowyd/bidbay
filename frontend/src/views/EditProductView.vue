@@ -17,7 +17,24 @@ const loading: Ref<boolean> = ref<boolean>(false);
 const productId:Ref<string> = ref<string>(route.params.productId as string);
 const product: Ref<Product|null> = ref<Product|null>(null);
 const formattedEndDate = ref<string | undefined>(undefined);
-const modelProduct = defineModel<Product>();
+
+interface productModel {
+  name: string;
+  description: string;
+  category: string;
+  originalPrice: number;
+  pictureUrl: string;
+  endDate: Date;
+}
+
+const modelProduct:Ref<productModel> = ref<productModel>({
+  name: "",
+  description: "",
+  category: "",
+  originalPrice: 0,
+  pictureUrl: "",
+  endDate: new Date()
+})
 
 const fetchProduct = async () => {
   loading.value = true;
@@ -26,7 +43,7 @@ const fetchProduct = async () => {
     console.log(response);
     product.value = response;
     formattedEndDate.value = new Date(response.endDate).toISOString().split('T')[0];
-    modelProduct.value = response
+    modelProduct.value = response;
   } catch (err) {
     console.error(err);
     error.value = true;
@@ -42,26 +59,27 @@ const fetchProduct = async () => {
 fetchProduct();
 
 const updateProduct = async (event: Event) => {
-  // event.preventDefault();
-  // console.log("updateProduct");
-  // console.log(product)
-  // const form = event.target as HTMLFormElement;
-  // const formData = new FormData(form);
-  // const data = Object.fromEntries(formData.entries());
-  // data.originalPrice = parseFloat(data.originalPrice);
-  // data.endDate = new Date(data.endDate).toISOString();
-  // data.id = productId.value;
-  // console.log(data);
-  // try {
-  //   loading.value = true;
-  //   // await productService.updateProduct(data);
-  //   router.push({ name: "Product", params: { productId: productId.value } });
-  // } catch (err) {
-  //   console.error(err);
-  //   error.value = true;
-  // } finally {
-  //   loading.value = false;
-  // }
+  const form = modelProduct.value;
+  console.log(modelProduct.value);
+  try {
+    if(product.value==null) return;
+    const newProduct: Product = {
+      ...product.value,
+      name: form.name,
+      description: form.description,
+      category: form.category,
+      originalPrice: form.originalPrice,
+      pictureUrl: form.pictureUrl,
+      endDate: form.endDate,
+    };
+    await productService.updateProduct(newProduct);
+    router.push({ name: "Product", params: { productId: productId.value } });
+  } catch (err) {
+    console.error(err);
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -83,7 +101,7 @@ const updateProduct = async (event: Event) => {
             id="product-name"
             required
             data-test-product-name
-            :value="product?.name"
+            v-model="modelProduct.name"
           />
         </div>
 
@@ -162,6 +180,9 @@ const updateProduct = async (event: Event) => {
             data-test-product-end-date
             :value="formattedEndDate"
           />
+        </div>
+        <div @click="updateProduct">
+        test
         </div>
 
         <div class="d-grid gap-2">
