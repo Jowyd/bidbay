@@ -5,7 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../store/auth";
 import { User } from "../models/user"
 
-const { isAuthenticated, userData } = useAuthStore();
+const { isAuthenticated, userData, isAdmin } = useAuthStore();
 import { userService } from "@/services/apiService";
 
 const router = useRouter();
@@ -22,11 +22,9 @@ const fetchUser = async () => {
   try {
     const response = await userService.getUser(userId.value);
     user.value = response;
-    console.log(response)
     return response;
   } catch (e) {
     error.value = true;
-    router.push({ name: "Home" });
   } finally {
     loading.value = false;
   } 
@@ -40,22 +38,24 @@ const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString();
 };
 
+console.log(userData)
+
 </script>
 
 <template>
   <div>
     <h1 class="text-center" data-test-username>
       Utilisateur {{ user?.username }}
-      <span class="badge rounded-pill bg-primary" data-test-admin v-if="userData?.admin">Admin</span>
+      <span class="badge rounded-pill bg-primary" data-test-admin v-if="user?.admin">Admin</span>
     </h1>
     <div class="text-center" data-test-loading v-if="loading">
       <span class="spinner-border"></span>
       <span>Chargement en cours...</span>
     </div>
-    <div v-if="error" class="alert alert-danger mt-3" role="alert">
-      {{ error }}
+    <div v-if="error" class="alert alert-danger mt-3" role="alert" data-test-error>
+      Une erreur est survenue lors du chargement de l'utilisateur.
     </div>
-    <div data-test-view>
+    <div data-test-view v-if="!error &&!loading">
       <div class="row">
         <div class="col-lg-6">
           <h2>Produits</h2>
