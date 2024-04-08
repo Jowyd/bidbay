@@ -2,15 +2,40 @@
 import { useAuthStore } from "../store/auth";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import { productService } from "@/services/apiService";
+import { Product } from "../models/product";
 
 const { isAuthenticated, token } = useAuthStore();
 const router = useRouter();
+
+let loading = ref(false);
+let errorMessage = ref("");
+let product: Product = {
+  name: "",
+  description: "",
+  category: "",
+  originalPrice: 0,
+  pictureUrl: "",
+  endDate: "",
+};
 
 if (!isAuthenticated.value) {
   router.push({ name: "Login" });
 }
 
-// router.push({ name: "Product", params: { productId: 'TODO } });
+async function addProduct() {
+  errorMessage.value = "";
+  loading.value = true;
+
+  try {
+    const createdProduct = await productService.createProduct(product); 
+    router.push({ name: "Product", params: { productId: createdProduct.id } });
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -18,9 +43,14 @@ if (!isAuthenticated.value) {
 
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <form>
-        <div class="alert alert-danger mt-4" role="alert" data-test-error>
-          Une erreur s'est produite
+      <form @submit.prevent="addProduct">
+        <div
+          class="alert alert-danger mt-4"
+          role="alert"
+          data-test-error
+          v-if="errorMessage != ''"
+        >
+          Une erreur s'est produite {{ errorMessage }}
         </div>
 
         <div class="mb-3">
@@ -29,6 +59,7 @@ if (!isAuthenticated.value) {
             type="text"
             class="form-control"
             id="product-name"
+            v-model="product.name"
             required
             data-test-product-name
           />
@@ -45,6 +76,7 @@ if (!isAuthenticated.value) {
             rows="3"
             required
             data-test-product-description
+            v-model="product.description"
           ></textarea>
         </div>
 
@@ -56,6 +88,7 @@ if (!isAuthenticated.value) {
             id="product-category"
             required
             data-test-product-category
+            v-model="product.category"
           />
         </div>
 
@@ -73,6 +106,7 @@ if (!isAuthenticated.value) {
               min="0"
               required
               data-test-product-price
+              v-model="product.originalPrice"
             />
             <span class="input-group-text">€</span>
           </div>
@@ -89,6 +123,7 @@ if (!isAuthenticated.value) {
             name="pictureUrl"
             required
             data-test-product-picture
+            v-model="product.pictureUrl"
           />
         </div>
 
@@ -103,6 +138,7 @@ if (!isAuthenticated.value) {
             name="endDate"
             required
             data-test-product-end-date
+            v-model="product.endDate"
           />
         </div>
 
@@ -110,7 +146,7 @@ if (!isAuthenticated.value) {
           <button
             type="submit"
             class="btn btn-primary"
-            disabled
+            :disabled="loading"
             data-test-submit
           >
             Ajouter le produit
@@ -119,6 +155,7 @@ if (!isAuthenticated.value) {
               class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
+              v-if="loading"
             ></span>
           </button>
         </div>
