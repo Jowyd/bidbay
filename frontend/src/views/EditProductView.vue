@@ -181,6 +181,9 @@ const updateProduct = async (event: Event) => {
             :value="formattedEndDate"
           />
         </div>
+        <div @click="updateProduct">
+        test
+        </div>
 
         <div class="d-grid gap-2">
           <button
