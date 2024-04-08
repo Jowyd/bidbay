@@ -1,0 +1,270 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 9,
+    "passes": 6,
+    "pending": 0,
+    "failures": 3,
+    "start": "2024-04-08T07:11:35.732Z",
+    "end": "2024-04-08T07:11:48.810Z",
+    "duration": 13078,
+    "testsRegistered": 9,
+    "passPercent": 66.66666666666666,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "e3056f9c-5059-4c67-8bdf-fa8fb5247574",
+      "title": "",
+      "fullFile": "cypress/e2e/frontend/home.cy.js",
+      "file": "cypress/e2e/frontend/home.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "5a03fa52-35a5-43b5-a662-886ec1768904",
+          "title": "Page /",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "fetch products",
+              "fullTitle": "Page / fetch products",
+              "timedOut": null,
+              "duration": 1006,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Test le scénario de récupération et d'affichage de tous les produits\ncy.visit(url);\ncy.get(\"[data-test-product]\").should(\"have.length\", 17);",
+              "err": {},
+              "uuid": "9a44b8be-ccae-4587-acb5-49b6cbd7613e",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "display product with past end date and last bid price",
+              "fullTitle": "Page / display product with past end date and last bid price",
+              "timedOut": null,
+              "duration": 48,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie que tous les éléments d'un produit sont bien affichés\n// Note : Si la date de fin est passée, afficher \"Terminé\"\n// Note : Si une offre existe pour le produit, afficher \"Prix actuel : <montant de l'offre>\"\n(0, _orm.createProduct)(\"past\").then(({\n  product\n}) => {\n  (0, _orm.createBid)(product.id, product.originalPrice, _tokens.bobToken).then(({\n    bid\n  }) => {\n    cy.visit(url);\n    cy.get(\"[data-test-product]\").should(\"have.length\", 18);\n    cy.get(`[data-test-product-name]:contains(\"${name}\")`).should(\"exist\").first().closest(\"[data-test-product]\").then(el => {\n      cy.wrap(el).find(\"[data-test-product-name]\").invoke(\"attr\", \"href\").should(\"include\", product.id);\n      cy.wrap(el).find(\"[data-test-product-description]\").should(\"have.text\", product.description);\n      cy.wrap(el).find(\"[data-test-product-seller]\").should(\"have.text\", \"alice\").invoke(\"attr\", \"href\").should(\"include\", _tokens.aliceId);\n      cy.wrap(el).find(\"[data-test-product-date]\").should(\"contain.text\", \"Terminé\");\n      cy.wrap(el).find(\"[data-test-product-price]\").should(\"contain.text\", \"Prix actuel\").should(\"contain.text\", \" \" + bid.price + \" €\");\n    });\n  }).catch(() => {\n    expect.fail(\"Bid creation fail\");\n  });\n});",
+              "err": {},
+              "uuid": "466ec415-185b-4689-9edd-aea8be34687c",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "display product with futur end date and original price (cause there not yet any bid)",
+              "fullTitle": "Page / display product with futur end date and original price (cause there not yet any bid)",
+              "timedOut": null,
+              "duration": 33,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie que tous les éléments d'un produit sont bien affichés\n// Note : Si la date de fin n'est pas passée, afficher \"En cours jusqu'au <date de fin>\"\n// Note : Si aucune une offre n'existe pour le produit, afficher \"Prix de départ : <prix de départ>\"\n(0, _orm.createProduct)().then(({\n  product\n}) => {\n  cy.visit(url);\n  cy.get(\"[data-test-product]\").should(\"have.length\", 18);\n  cy.get(`[data-test-product-name]:contains(\"${name}\")`).should(\"exist\").first().closest(\"[data-test-product]\").then(el => {\n    cy.wrap(el).find(\"[data-test-product-description]\").should(\"have.text\", product.description);\n    cy.wrap(el).find(\"[data-test-product-seller]\").should(\"have.text\", \"alice\").invoke(\"attr\", \"href\").should(\"include\", _tokens.aliceId);\n    cy.wrap(el).find(\"[data-test-product-date]\").should(\"contain.text\", \"En cours jusqu'au\");\n    cy.wrap(el).find(\"[data-test-product-price]\").should(\"contain.text\", \"Prix de départ\").should(\"contain.text\", \" \" + product.originalPrice + \" €\");\n  });\n});",
+              "err": {},
+              "uuid": "b8ac772b-8817-4516-a439-96eea720edfe",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "filter by name",
+              "fullTitle": "Page / filter by name",
+              "timedOut": null,
+              "duration": 828,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie le filtrage par nom, insensible à la casse\ncy.visit(url);\ncy.get(\"[data-test-product]\").should(\"have.length\", 17);\ncy.get(\"[data-test-filter\").type(\"Lot\");\ncy.get(\"[data-test-product]\").should(\"have.length\", 3);\ncy.get(\"[data-test-filter\").type(\"{selectAll}{del}\");\ncy.get(\"[data-test-filter\").type(\"lot\");\ncy.get(\"[data-test-product]\").should(\"have.length\", 3);\ncy.get(\"[data-test-filter\").type(\"{selectAll}{del}\");\ncy.get(\"[data-test-filter\").type(\"lot de tasses\");\ncy.get(\"[data-test-product]\").should(\"have.length\", 1);",
+              "err": {},
+              "uuid": "adb4c8cc-f399-46e6-9860-d4db8663578e",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "sort by name",
+              "fullTitle": "Page / sort by name",
+              "timedOut": null,
+              "duration": 4437,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie le tri par nom, alphabétique de A à Z\ncy.visit(url);\ncy.get(\"[data-test-sorter]\").should(\"contain.text\", \"Trier par nom\");\ncy.get(\"[data-test-product]\").first().find(\"[data-test-product-name]\").should(\"have.text\", \"Ampli de guitare\");\ncy.get(\"[data-test-product]\").last().find(\"[data-test-product-name]\").should(\"have.text\", \"Théière design\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 4000ms: expected '<a>' to have text 'Ampli de guitare', but the text was 'Lot de dés'",
+                "estack": "AssertionError: Timed out retrying after 4000ms: expected '<a>' to have text 'Ampli de guitare', but the text was 'Lot de dés'\n    at Context.eval (webpack://frontend/./cypress/e2e/frontend/home.cy.js:133:7)",
+                "diff": "- 'Lot de dés'\n+ 'Ampli de guitare'\n"
+              },
+              "uuid": "175d5177-2c1f-46f5-b7ab-27337d7d0ae6",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "sort by price",
+              "fullTitle": "Page / sort by price",
+              "timedOut": null,
+              "duration": 4552,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Vérifie le tri par prix, numérique croissant\ncy.visit(url);\ncy.get(\"[data-test-sorter]\").click();\ncy.get(\"[data-test-sorter-price]\").click();\ncy.get(\"[data-test-sorter]\").should(\"contain.text\", \"Trier par prix\");\ncy.get(\"[data-test-product]\").first().find(\"[data-test-product-name]\").should(\"have.text\", \"Ananas\");\ncy.get(\"[data-test-product]\").last().find(\"[data-test-product-name]\").should(\"have.text\", \"Chaussures volantes\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 4000ms: expected '<button.btn.btn-primary.dropdown-toggle>' to contain text 'Trier par prix', but the text was ' Trier par nom '",
+                "estack": "AssertionError: Timed out retrying after 4000ms: expected '<button.btn.btn-primary.dropdown-toggle>' to contain text 'Trier par prix', but the text was ' Trier par nom '\n    at Context.eval (webpack://frontend/./cypress/e2e/frontend/home.cy.js:149:33)",
+                "diff": "- ' Trier par nom '\n+ 'Trier par prix'\n"
+              },
+              "uuid": "e7e5cbfa-9534-48a0-a3b8-f00ba16b98b7",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "loading",
+              "fullTitle": "Page / loading",
+              "timedOut": null,
+              "duration": 198,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Test la présence d'un spinner lors du chargement\ncy.intercept(\"http://localhost:3000/api/products\", {\n  delay: 10000\n});\ncy.visit(url);\ncy.get(\"[data-test-loading]\").should(\"exist\");\ncy.get(\"[data-test-error]\").should(\"not.exist\");\ncy.get(\"[data-test-product]\").should(\"not.exist\");",
+              "err": {},
+              "uuid": "460810fe-80f7-4a35-86ea-e59a41b47972",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "error message",
+              "fullTitle": "Page / error message",
+              "timedOut": null,
+              "duration": 253,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Test la présence d'un message d'erreur en cas d'échec au chargement\ncy.intercept(\"http://localhost:3000/api/products\", {\n  status: 500,\n  response: {}\n});\ncy.visit(url);\ncy.get(\"[data-test-loading]\").should(\"not.exist\");\ncy.get(\"[data-test-error]\").should(\"exist\");\ncy.get(\"[data-test-product]\").should(\"not.exist\");",
+              "err": {
+                "message": "Error: The following error originated from your application code, not from Cypress. It was caused by an unhandled promise rejection.\n\n  > Missing required param \"productId\"\n\nWhen Cypress detects uncaught errors originating from your application it will automatically fail the current test.\n\nThis behavior is configurable, and you can choose to turn this off by listening to the `uncaught:exception` event.\n\nhttps://on.cypress.io/uncaught-exception-from-application",
+                "estack": "Error: The following error originated from your application code, not from Cypress. It was caused by an unhandled promise rejection.\n\n  > Missing required param \"productId\"\n\nWhen Cypress detects uncaught errors originating from your application it will automatically fail the current test.\n\nThis behavior is configurable, and you can choose to turn this off by listening to the `uncaught:exception` event.\n\nhttps://on.cypress.io/uncaught-exception-from-application\n    at Object.stringify (http://localhost:5173/node_modules/.vite/deps/chunk-H4GK5U4X.js?v=b88605b4:890:21)\n    at Object.resolve (http://localhost:5173/node_modules/.vite/deps/chunk-H4GK5U4X.js?v=b88605b4:1224:22)\n    at Object.resolve (http://localhost:5173/node_modules/.vite/deps/chunk-H4GK5U4X.js?v=b88605b4:2320:34)\n    at <unknown> (http://localhost:5173/node_modules/.vite/deps/chunk-H4GK5U4X.js?v=b88605b4:1597:39)\n    at ReactiveEffect.fn (http://localhost:5173/node_modules/.vite/deps/chunk-2FDUVFJ5.js?v=b88605b4:1237:13)\n    at ReactiveEffect.run (http://localhost:5173/node_modules/.vite/deps/chunk-2FDUVFJ5.js?v=b88605b4:430:19)\n    at get value (http://localhost:5173/node_modules/.vite/deps/chunk-2FDUVFJ5.js?v=b88605b4:1249:107)\n    at useLink (http://localhost:5173/node_modules/.vite/deps/chunk-H4GK5U4X.js?v=b88605b4:1633:22)\n    at setup (http://localhost:5173/node_modules/.vite/deps/chunk-H4GK5U4X.js?v=b88605b4:1674:27)\n    at callWithErrorHandling (http://localhost:5173/node_modules/.vite/deps/chunk-2FDUVFJ5.js?v=b88605b4:1660:19)",
+                "diff": null
+              },
+              "uuid": "5529db7c-932b-4594-a5fd-c5ea49f87e99",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "ready",
+              "fullTitle": "Page / ready",
+              "timedOut": null,
+              "duration": 163,
+              "state": "passed",
+              "speed": "fast",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Note : Test la présence du contenu après que tout est bien chargé\ncy.intercept(\"http://localhost:3000/api/products\");\ncy.visit(url);\ncy.get(\"[data-test-loading]\").should(\"not.exist\");\ncy.get(\"[data-test-error]\").should(\"not.exist\");\ncy.get(\"[data-test-product]\").should(\"exist\");",
+              "err": {},
+              "uuid": "f1afbf5f-74d4-4e5a-9e25-5ee726cdc9b9",
+              "parentUUID": "5a03fa52-35a5-43b5-a662-886ec1768904",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "9a44b8be-ccae-4587-acb5-49b6cbd7613e",
+            "466ec415-185b-4689-9edd-aea8be34687c",
+            "b8ac772b-8817-4516-a439-96eea720edfe",
+            "adb4c8cc-f399-46e6-9860-d4db8663578e",
+            "460810fe-80f7-4a35-86ea-e59a41b47972",
+            "f1afbf5f-74d4-4e5a-9e25-5ee726cdc9b9"
+          ],
+          "failures": [
+            "175d5177-2c1f-46f5-b7ab-27337d7d0ae6",
+            "e7e5cbfa-9534-48a0-a3b8-f00ba16b98b7",
+            "5529db7c-932b-4594-a5fd-c5ea49f87e99"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 11518,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/results",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}
