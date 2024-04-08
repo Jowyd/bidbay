@@ -24,7 +24,7 @@ interface productModel {
   category: string;
   originalPrice: number;
   pictureUrl: string;
-  endDate: Date;
+  endDate: string;
 }
 
 const modelProduct:Ref<productModel> = ref<productModel>({
@@ -33,7 +33,7 @@ const modelProduct:Ref<productModel> = ref<productModel>({
   category: "",
   originalPrice: 0,
   pictureUrl: "",
-  endDate: new Date()
+  endDate: ""
 })
 
 const fetchProduct = async () => {
@@ -42,8 +42,11 @@ const fetchProduct = async () => {
     const response = await productService.getProductById(productId.value);
     console.log(response);
     product.value = response;
-    formattedEndDate.value = new Date(response.endDate).toISOString().split('T')[0];
-    modelProduct.value = response;
+    // formattedEndDate.value = ;
+    modelProduct.value = {
+      ...response,
+      endDate : new Date(response.endDate).toISOString().split('T')[0],
+    };
   } catch (err) {
     console.error(err);
     error.value = true;
@@ -70,10 +73,9 @@ const updateProduct = async (event: Event) => {
       category: form.category,
       originalPrice: form.originalPrice,
       pictureUrl: form.pictureUrl,
-      endDate: form.endDate,
+      endDate: stringToDate(form.endDate),
     };
-    // await productService.updateProduct(newProduct);
-    // router.push({ name: "Home" });
+    await productService.updateProduct(newProduct);
   } catch (err) {
     console.error(err);
     error.value = true;
@@ -81,6 +83,10 @@ const updateProduct = async (event: Event) => {
     loading.value = false;
   }
 };
+
+function stringToDate(date: string): Date {
+  return new Date(date);
+}
 
 function formateDate(date: Date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -186,10 +192,6 @@ function formateDate(date: Date) {
             v-model="modelProduct.endDate"
           />
         </div>
-        <div @click="updateProduct">
-          test
-        </div>
-
         <div class="d-grid gap-2">
           <button
             type="submit"
