@@ -66,15 +66,20 @@ setInterval(() => {
 updateCountdown();
 
 const formattedCountdown = computed(() => {
-  const hours = Math.floor((countdown.value % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((countdown.value % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((countdown.value % (1000 * 60)) / 1000);
+  const totalSeconds = Math.floor(countdown.value / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 });
 
 function isYou(){
   return userData.value?.id === product.value?.sellerId;
+}
+
+function haveRight(){
+  return userData.value?.id === product.value?.sellerId || isAdmin.value;
 }
 
 function canDeleteBid(bid:Bid){
@@ -150,11 +155,14 @@ const submitBid = async () => {
               :to="{ name: 'ProductEdition', params: { productId: productId } }"
               class="btn btn-primary"
               data-test-edit-product
+              v-if="haveRight()"
             >
               Editer
             </RouterLink>
             &nbsp;
-            <button class="btn btn-danger" data-test-delete-product>
+            <button class="btn btn-danger" data-test-delete-product
+            v-if="haveRight()"
+            >
               Supprimer
             </button>
           </div>
