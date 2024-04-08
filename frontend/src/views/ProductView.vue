@@ -218,7 +218,7 @@ const submitBid = async () => {
         </table>
         <p data-test-no-bids v-else>Aucune offre pour le moment</p>
 
-        <form data-test-bid-form>
+        <form data-test-bid-form v-if="product?.sellerId === userData?.id">
           <div class="form-group">
             <label for="bidAmount">Votre offre :</label>
             <input
@@ -235,7 +235,7 @@ const submitBid = async () => {
           <button
             type="submit"
             class="btn btn-primary"
-            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0) ||product?.sellerId === userData?.id" 
+            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0)" 
             data-test-submit-bid
             @click="submitBid()"
           >
