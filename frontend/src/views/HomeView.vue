@@ -1,54 +1,55 @@
 <script setup lang="ts">
-import { ref, computed, Ref } from "vue";
 import { productService } from "@/services/apiService";
-import { Product } from "@/models/product";
+import { Product } from "../models/product";
+import { ref, computed } from "vue";
 
-const loading = ref(false);
-const error = ref(false);
-const products: Ref<Product[]> = ref([]);
-const searchTerm = ref("");
-const sortOption = ref("name");
+const loading = ref(true);
+const errorMessage = ref("");
+let products = ref<Product[]>([]);
+let itemMatch = ref("");
+let sort = ref("nom");
 
 async function fetchProducts() {
   loading.value = true;
-  error.value = false;
+  errorMessage.value = "";
+
   try {
-    const response = await productService.getProducts();
-    console.log(response);
-    products.value = response;
-  } catch (e) {
-    error.value = true;
+    const fetchedProducts = await productService.getProducts();
+    products.value = fetchedProducts;
+    sortedProducts("name");
+  } catch (error) {
+    errorMessage.value =
+      "Une erreur est survenue lors du chargement des produits.";
   } finally {
     loading.value = false;
   }
 }
 
-fetchProducts();
 const filteredProducts = computed(() => {
-  if (searchTerm.value) {
-    return products.value.filter((product) => {
-      return product.name
-        .toLowerCase()
-        .includes(searchTerm.value.toLowerCase());
-    });
-  } else {
-    return products.value;
+  if (!products.value) {
+    return [];
   }
+
+  return products.value.filter((prod) => {
+    return prod.name.toLowerCase().includes(itemMatch.value.toLowerCase());
+  });
 });
 
-function sortProducts(type: string) {
+function sortedProducts(type: string) {
   if (type === "price") {
     products.value = products.value?.sort(
       (a, b) => a.originalPrice - b.originalPrice
     );
-    sortOption.value = "prix";
+    sort.value = "prix";
   } else {
     products.value = products.value?.sort((a, b) =>
       a.name.localeCompare(b.name)
     );
-    sortOption.value = "nom";
+    sort.value = "nom";
   }
 }
+
+fetchProducts();
 </script>
 
 <template>
@@ -65,7 +66,7 @@ function sortProducts(type: string) {
               class="form-control"
               placeholder="Filtrer par nom"
               data-test-filter
-              v-model="searchTerm"
+              v-model="itemMatch"
             />
           </div>
         </form>
@@ -79,13 +80,13 @@ function sortProducts(type: string) {
             aria-expanded="false"
             data-test-sorter
           >
-            Trier par nom
+            Trier par {{ sort }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li v-on:click="sortProducts('name')">
+            <li v-on:click="sortedProducts('name')">
               <a class="dropdown-item" href="#"> Nom </a>
             </li>
-            <li v-on:click="sortProducts('price')">
+            <li v-on:click="sortedProducts('price')">
               <a class="dropdown-item" href="#" data-test-sorter-price>
                 Prix
               </a>
@@ -105,23 +106,21 @@ function sortProducts(type: string) {
       class="alert alert-danger mt-4"
       role="alert"
       data-test-error
-      v-if="error"
+      v-if="errorMessage"
     >
-      Une erreur est survenue lors du chargement des produits.
+      {{ errorMessage }}
     </div>
-    <div class="row">
+    <div class="row" v-if="products.length > 0">
       <div
         class="col-md-4 mb-4"
-        v-for="product in filteredProducts"
+        v-for="prod in filteredProducts"
         data-test-product
-        :key="product.id"
+        :key="prod.id"
       >
         <div class="card">
-          <RouterLink
-            :to="{ name: 'Product', params: { productId: product.id } }"
-          >
+          <RouterLink :to="{ name: 'Product', params: { productId: prod.id } }">
             <img
-              :src="product.pictureUrl"
+              :src="prod.pictureUrl"
               data-test-product-picture
               class="card-img-top"
             />
@@ -130,28 +129,44 @@ function sortProducts(type: string) {
             <h5 class="card-title">
               <RouterLink
                 data-test-product-name
-                :to="{ name: 'Product', params: { productId: product.id } }"
+                :to="{ name: 'Product', params: { productId: prod.id } }"
               >
-                {{ product.name }}
+                {{ prod.name }}
               </RouterLink>
             </h5>
             <p class="card-text" data-test-product-description>
-              {{ product.description }}
+              {{ prod.description }}
             </p>
             <p class="card-text">
               Vendeur :
               <RouterLink
+                v-if="prod.seller"
                 data-test-product-seller
-                :to="{ name: 'User', params: { userId: product.sellerId } }"
+                :to="{ name: 'User', params: { userId: prod.seller.id } }"
               >
-                {{ product.seller.username }}
+                {{ prod.seller.username }}
               </RouterLink>
             </p>
             <p class="card-text" data-test-product-date>
-              En cours jusqu'au {{ product.endDate }}
+              {{
+                new Date(prod.endDate) < new Date()
+                  ? "Terminé"
+                  : "En cours jusqu'au " +
+                    new Date(prod.endDate).toLocaleDateString("en-GB")
+              }}
             </p>
-            <p class="card-text" data-test-product-price>
-              Prix actuel : {{ product.originalPrice }} €
+            <p
+              class="card-text"
+              data-test-product-price
+              v-if="prod.bids !== undefined"
+            >
+              {{
+                prod.bids?.length === 0
+                  ? "Prix de départ " + prod.originalPrice + " €"
+                  : "Prix actuel " +
+                    prod.bids[prod.bids.length - 1].price +
+                    " €"
+              }}
             </p>
           </div>
         </div>
