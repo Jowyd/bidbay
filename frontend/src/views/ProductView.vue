@@ -2,7 +2,7 @@
 import { ref, computed, Ref, onMounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "../store/auth";
-import { productService } from "@/services/apiService";
+import { productService, bidService } from "@/services/apiService";
 import { Product } from '@/models/product';
 import { Bid } from '@/models/bid';
 
@@ -80,6 +80,28 @@ function isYou(){
 function canDeleteBid(bid:Bid){
   return bid.bidderId === userData.value?.id || isAdmin.value;
 }
+
+const deleteBid = async (bid:Bid) => {
+  try {
+    await bidService.deleteBid(bid.id);
+    fetchProduct();
+  } catch (err) {
+    console.error(err);
+    error.value = true;
+  }
+};
+
+const bidAmount = ref(0);
+
+const submitBid = async () => {
+  try {
+    await bidService.createBid(productId.value, bidAmount.value);
+    fetchProduct();
+  } catch (err) {
+    console.error(err);
+    error.value = true;
+  }
+};
 
 </script>
 
@@ -184,7 +206,7 @@ function canDeleteBid(bid:Bid){
               <td data-test-bid-price>{{ bid.price }} €</td>
               <td data-test-bid-date>{{ formatDate(bid.date) }}</td>
               <td>
-                <button class="btn btn-danger btn-sm" data-test-delete-bid v-if="canDeleteBid(bid) || isYou()">
+                <button class="btn btn-danger btn-sm" data-test-delete-bid v-if="canDeleteBid(bid)" @click="deleteBid(bid)">
                   Supprimer
                 </button>
               </td>
@@ -201,6 +223,7 @@ function canDeleteBid(bid:Bid){
               class="form-control"
               id="bidAmount"
               data-test-bid-form-price
+              v-model="bidAmount"
             />
             <small class="form-text text-muted">
               Le montant doit être supérieur à 10 €.
@@ -209,8 +232,9 @@ function canDeleteBid(bid:Bid){
           <button
             type="submit"
             class="btn btn-primary"
-            disabled
+            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0)"
             data-test-submit-bid
+            @click="submitBid()"
           >
             Enchérir
           </button>
