@@ -10,7 +10,6 @@ import { Bid } from '@/models/bid';
 const { isAuthenticated, isAdmin, userData, token } = useAuthStore();
 
 const route = useRoute();
-const router = useRouter();
 
 const productId:Ref<string> = ref<string>(route.params.productId as string);
 const loading: Ref<boolean> = ref<boolean>(false);
@@ -29,9 +28,7 @@ const fetchProduct = async () => {
   }
 };
 
-onMounted(() => {
-  fetchProduct();
-});
+fetchProduct();
 
 /**
  * @param {number|string|Date|VarDate} date
@@ -113,10 +110,10 @@ const submitBid = async () => {
       </div>
     </div>
 
-    <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error">
+    <div class="alert alert-danger mt-4" role="alert" v-if="error" data-test-error>
       Une erreur est survenue lors du chargement des produits.
     </div>
-    <div class="row" data-test-product>
+    <div class="row" data-test-product v-if="!loading && !error && product">
       <!-- Colonne de gauche : image et compte à rebours -->
       <div class="col-lg-4">
         <img
@@ -187,7 +184,7 @@ const submitBid = async () => {
         </ul>
 
         <h2 class="mb-3">Offres sur le produit</h2>
-        <table class="table table-striped" data-test-bids v-if="product?.bids.length!=0">
+        <table class="table table-striped" data-test-bids v-if="product?.bids && product?.bids.length > 0">
           <thead>
             <tr>
               <th scope="col">Enchérisseur</th>
@@ -218,7 +215,7 @@ const submitBid = async () => {
         </table>
         <p data-test-no-bids v-else>Aucune offre pour le moment</p>
 
-        <form data-test-bid-form>
+        <form data-test-bid-form v-if="!isYou()">
           <div class="form-group">
             <label for="bidAmount">Votre offre :</label>
             <input
@@ -235,11 +232,10 @@ const submitBid = async () => {
           <button
             type="submit"
             class="btn btn-primary"
-            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0) ||product?.sellerId === userData?.id" 
+            v-bind:disabled="bidAmount < 10 || bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0)" 
             data-test-submit-bid
             @click="submitBid()"
           >
-          <!-- bidAmount <= (product?.bids[product.bids.length-1]?.price ?? 0) ||  -->
             Enchérir
           </button>
         </form>

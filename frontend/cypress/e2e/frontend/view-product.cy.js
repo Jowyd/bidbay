@@ -413,12 +413,11 @@ describe("Page /products/:productId", async () => {
     // Note : Vérifie la présence d'une erreur en cas d'échec de chargement
 
     cy.intercept(`http://localhost:3000/api/products/${casserolesId}`, {
-      status: 500,
-      response: {},
+      statusCode: 500,
     });
 
     cy.visit(`http://localhost:5173/products/${casserolesId}`);
-
+    console.log()
     cy.get("[data-test-loading]").should("not.exist");
     cy.get("[data-test-error]").should("exist");
     cy.get("[data-test-product]").should("not.exist");
