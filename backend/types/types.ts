@@ -5,3 +5,7 @@ export type Token = {
     admin: boolean;
 };
 
+export interface ResponseError{
+    error: string;
+    details?: string[];
+}
